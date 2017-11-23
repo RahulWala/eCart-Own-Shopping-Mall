@@ -1,0 +1,39 @@
+extends base
+
+block content
+	h3.text-center Add Product
+	form.text-center.mt-2(method='post', action='http://localhost:3000/users/proInfo')
+		.form-group.row
+			label.col-3(for='proName') Product Name
+			.col-4
+				input.form-control(type='text', name='proName', placeholder='Laptop')
+		.form-group.row
+			label.col-3(for='category') Category
+			.col-4
+				select.form-control(name='category')
+					option Mobile
+					option TV
+					option Jewellery
+					option Laptop
+					option Footweear
+					option Clothes
+					option Accessories
+					option Furnitures
+					option Kitchen
+		.form-group.row
+			label.col-3(for='price') Price
+			.col-4
+				input.form-control(type='number', name='price',min="1", max="99999", placeholder='Amount')
+		.form-group.row
+			label.col-3(for='model') Model
+			.col-4
+				input.form-control(type='text', name='model', placeholder='Laptop')
+		.form-group.row
+			label.col-3(for='seller') Seller
+			.col-4
+				input.form-control(type='text', name='seller', placeholder='Xyz Abc')
+		.form-group.row
+			label.col-3(for='comment') Product Description
+			.col-4
+				textarea(type='text',rows='4', cols='52',name='comment',form='unform',placeholder='Enter Product Description')
+		button.btn.btn-primary.btn-block(type="submit") Submit

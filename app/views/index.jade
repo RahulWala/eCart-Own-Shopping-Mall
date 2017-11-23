@@ -1,0 +1,50 @@
+extends base
+
+block content
+    .container-fluid
+      p.text-center Welcome ! To eCart, Your Mini Shopping Mall
+      .row
+        .col-lg-6.col-md-6.col-sm-12.card
+          .card-block
+            .card-header.text-center Sign up here!
+            .card-title.text-center Create your own product just Signing up.
+            form(method='POST',action='http://localhost:3000/users/signup')
+              .form-group.row
+                label.col-3(for='firstName') First Name
+                .col-9
+                  input.text-center.form-control(type='text',name='firstName',placeholder='John')
+              .form-group.row
+                label.col-3(for='lastName') Last Name
+                .col-9
+                  input.text-center.form-control(type='text',name='lastName',placeholder='Doe')
+              .form-group.row
+                label.col-3(for='emailId') Email Address
+                .col-9
+                  input.text-center.form-control(type='email', name='emailId', placeholder='JohnDoe@example.com')
+              .form-group.row
+                label.col-3(for='mobileNumber') Mobile Number
+                .col-9
+                  input.text-center.form-control(type='Number', name='mobileNumber', placeholder='(+91)-1234567890')
+              .form-group.row
+                label.col-3(for='password') Enter Password
+                .col-9
+                  input.text-center.form-control(type='password',name='password')
+              button.btn.btn-block.btn-lg(type='submit') Signup
+
+        .col-lg-6.col-md-6.col-sm-12.text-center.card
+          .card-block
+            .card-header LogIn here!
+            .card-title Login, You are good to go!
+                br
+              .row
+                .col-lg-12.col-md-12.col-sm-12
+                  form(method='post', action='http://localhost:3000/users/login')
+                    .form-group.row
+                      label.col-3(for='email') Email Address
+                      .col-9
+                        input.text-center.form-control(type='email', name='emailId', placeholder='JohnDoe@example.com')
+                    .form-group.row
+                      label.col-3(for='passworrd') Enter Password
+                      .col-9
+                        input.text-center.form-control(type='password',name='password')
+                    button.btn.btn-block.btn-lg(type='submit') LogIn

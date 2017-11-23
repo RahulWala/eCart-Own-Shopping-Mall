@@ -1,0 +1,25 @@
+extends base
+
+block content
+	br
+	.row
+		.col-9
+			h3.text-center
+		.col-3
+			button(type='button')
+				a(href='/users/logout') Logout
+	br
+	.container-fluid
+		.row
+			.col-lg-3.col-md-3.col-sm-3.text-center.btn
+				.btn.btn-lg.btn-primary.btn-block
+					a(style="color:black;text-decoration:none;")(href='/users/proInfo') Add Product
+			.col-lg-3.col-md-3.col-sm-3.text-center.btn
+					form(method='post',action='http://localhost:3000/users/viewPro')
+						button.btn.btn-block.btn-lg.btn-primary(style="color:black;")(type='submit') View Product
+			.col-lg-3.col-md-3.col-sm-3.text-center.btn
+				.btn.btn-lg.btn-primary.btn-block
+					a(style="color:black;text-decoration:none;")(href='/users/viewCart') View Cart
+			.col-lg-3.col-md-3.col-sm-3.text-center.btn
+				.btn.btn-lg.btn-primary.btn-block
+					a(style="color:black;text-decoration:none;")(href='/users/proInfo') Your Order
