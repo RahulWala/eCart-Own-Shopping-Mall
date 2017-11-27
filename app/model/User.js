@@ -11,7 +11,8 @@ var eCart = new Schema({
 	lastName		: 	{type:String, default:''},
 	emailId			: 	{type:String, default:''},
 	mobileNumber	: 	{type:Number, default:''},
-	password		: 	{type:String, default:''}
+	password		: 	{type:String, default:''},
+	cart 			: 	[]
 }
 );
 

@@ -7,6 +7,13 @@ block content
 				th Products
 				th Quantity
 				th Price
+				th Delete
 		tbody
-			tr
-				td #{items.proName}
+			each item, index in items
+				tr
+					td #{item.proName}
+					td #{index+1}
+					td #{item.price}
+					td
+						form(method="post", action="http://localhost:3000/users/delete/fromCart/#{item._id}")
+							button(type='submit') Delete
