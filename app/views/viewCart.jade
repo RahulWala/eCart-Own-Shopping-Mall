@@ -15,5 +15,5 @@ block content
 					td #{index+1}
 					td #{item.price}
 					td
-						form(method="post", action="http://localhost:3000/users/delete/fromCart/#{item._id}")
+						form(method="post", action="http://localhost:3000/users/delete/#{item._id}")
 							button(type='submit') Delete

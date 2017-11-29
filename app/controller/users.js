@@ -92,8 +92,7 @@ module.exports.controllerFunction = function(app){
 				// var myResponse = responseGenerator.generate(true,"Serious error",404,null);
 				// res.send(myResponse);
 				res.render('error');
-			}
-			else if(foundUser == null || foundUser == undefined || foundUser.emailId == undefined || foundUser.password == null){
+			}else if(foundUser == null || foundUser == undefined || foundUser.emailId == undefined || foundUser.password == null){
 				// console.log("eroor due to user info");
 				// var myResponse = responseGenerator.generate(true,"Check your Email Id and Password",404,null);
 				// res.send(myResponse);
@@ -104,8 +103,8 @@ module.exports.controllerFunction = function(app){
 				// res.send(myResponse);
 				// console.log(foundUser);
 				req.session.user = foundUser;
-				console.log("User info "+req.session.user);
-				res.render('product',{user:foundUser});
+				
+				res.render('product',{user : foundUser});
 			}
 		});
 	});
@@ -151,38 +150,55 @@ module.exports.controllerFunction = function(app){
 	});
 
 	//////////////// Adding to Cart function /////////////
-	appRouter.get('/addCart/:id',function(req,res,next){
-		eProduct.findOne({'_id' : req.params.id},function(err,foundProduct){
+	appRouter.get('/addCart/:id',auth.isLoggedIn,function(req,res,next){
+		eProduct.findById({'_id' : req.params.id},function(err,productFind){
 			if(err){
+				res.render('error',{title : "Something Went Wrong"});
+			}else if(productFind =="" || productFind == undefined || productFind == null){
 				res.render('error',{title : "Product doesn't exist"});
-			}else if(foundProduct == undefined || foundProduct == null || foundProduct == ""){
-				res.render('error',{title : "Product doesn't exist"});
-			} else{
-				req.session.cart = foundProduct;
-				eCart.findByIdAndUpdate(req.session.user,{$push : {cart : foundProduct}},function(err,foundUser){
+			}else{
+				eCart.findOneAndUpdate(req.session.user._id,{$push : {cart:productFind}},function(err,userFound){
 					if(err){
-						res.render('error',{title : "You are not logged in"});
-
-					} else if(foundUser == undefined || foundUser == null){
-						res.render('error',{title : "Login to access your cart"});
+						res.render('error',{title : "Something Went Wrong"});
+					}else if(userFound == null || userFound == undefined || userFound==""){
+						res.render('error', {title : "User Not Found"});
 					}else{
-						req.session.userCart = foundUser;
-						res.render('product');
+						res.render('viewCart',{items : userFound.cart})
 					}
 				});
 			}
 		});
+
+		// eProduct.findOne({'_id' : req.params.id},function(err,foundProduct){
+		// 	if(err){
+		// 		res.render('error',{title : "Something went wrong"});
+		// 	}else if(foundProduct == undefined || foundProduct == null || foundProduct == ""){
+
+		// 		res.render('error',{title : "Product doesn't exist"});
+		// 	}else{
+		// 		req.session.cart = foundProduct;
+		// 		eCart.findByIdAndUpdate(req.session.user,{$push : {cart : foundProduct}},function(err,foundUsers){
+		// 			if(err){
+		// 				res.render('error',{title : "Something went wrong"});
+		// 			}else if(foundUsers == undefined || foundUsers == null || foundUsers == ""){
+		// 				res.render('error',{title : "Login to access your cart"});
+		// 			}else{
+		// 				res.render('product');
+		// 			}
+		// 		});
+		// 	}
+		// });
 	});
 
 	////////////// Viewing to cart function and making payment function /////////////////
 	appRouter.get('/viewCart',auth.isLoggedIn,function(req,res,next){
-
-		eCart.find(req.session.user,function(err,result){
+		eCart.findOne(req.session.user,function(err,result){
 			if(err){
 				res.render('error',{title : "You are not logged in"});
+			}else if(result == null || result == undefined || result ==""){
+				res.render('error', {title : "Cart is empty!!!"});
 			}else{
-				req.session.viewCart = result;
-				res.render('viewCart',{ items : req.session.userCart.cart});
+				res.render('viewCart',{ items : req.session.user.cart});
 			}
 		});
 
@@ -190,16 +206,35 @@ module.exports.controllerFunction = function(app){
 
 
 	/////////////// Delete product from cart ////////////////
-	appRouter.post('/delete/fromCart/:id',function(req,res,next){
-		eCart.findOneAndUpdate({"_id": req.session.user._id},{$pull:{cart:{'_id':req.params.id}}},{multi : true},function(err,result){
+	appRouter.post('/delete/:id',auth.isLoggedIn,function(req,res,next){
+		eProduct.findOne({'_id' : req.params.id},function(err,deleteProduct){
 			if(err){
-				res.render('error', {title : "Sorry ! Product doesn't exist"});
-			}else if(result == "" || result == undefined || result == null){
-				res.render('error', {title : "No such Product exist"})
+				res.render('error',{title : "Product doesn't exist"});
+			}else if(deleteProduct == undefined || deleteProduct == null || deleteProduct == ""){
+				res.render('error',{title : "Product doesn't exist"});
 			}else{
-				res.render('error',{title : "Deleted Successfully"});
+				eCart.findOneAndUpdate(req.session.user,{$pull : {cart : deleteProduct}},function(err,deleteUser){
+					if(err){
+						res.render('error',{title : "Something went wrong"});
+					}else if(deleteUser == undefined || deleteUser == null || deleteUser == ""){
+						res.render('error',{title : "You are not logged in"});
+					}else{
+						res.render('viewCart',{items : req.session.user.cart});
+					}
+				});
 			}
-		})
+		});
+
+
+		// eCart.findOneAndUpdate({'_id': req.session.user._id},{$pull:{cart:{'_id':req.params.id}}},{multi : true},function(err,result){
+		// 	if(err){
+		// 		res.render('error', {title : "Something went wrong"});
+		// 	}else if(result == "" || result == undefined || result == null){
+		// 		res.render('error', {title : "No such Product exist"})
+		// 	}else{
+		// 		res.render('viewCart',{items : req.session.user.cart});
+		// 	}
+		// })
 	});
 
 
