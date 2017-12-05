@@ -22,5 +22,5 @@ block content
 									br 
 									p #{pro.comment}
 					.card-footer
-						button.btn.btn-primary
-							a(href='/users/addCart/#{pro._id}') Add To Cart
+						form(method="post",action="http://localhost:3000/users/addCart/#{pro._id}")
+							button.btn.btn-primary.btn-lg Add To Cart

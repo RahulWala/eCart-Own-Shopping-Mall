@@ -4,9 +4,9 @@ block content
 	br
 	.row
 		.col-9
-			h3.text-center
+			h3.text-center Hello ! #{user.userName}
 		.col-3
-			button(type='button')
+			button.btn.btn-primary.btn-block
 				a(href='/users/logout') Logout
 	br
 	.container-fluid
@@ -18,8 +18,8 @@ block content
 					form(method='post',action='http://localhost:3000/users/viewPro')
 						button.btn.btn-block.btn-lg.btn-primary(style="color:black;")(type='submit') View Product
 			.col-lg-3.col-md-3.col-sm-3.text-center.btn
-				.btn.btn-lg.btn-primary.btn-block
-					a(style="color:black;text-decoration:none;")(href='/users/viewCart') View Cart
+				form(method="post", action="http://localhost:3000/users/viewCart/#{user._id}")
+					button.btn.btn-lg.btn-primary.btn-block View Cart
 			.col-lg-3.col-md-3.col-sm-3.text-center.btn
 				.btn.btn-lg.btn-primary.btn-block
 					a(style="color:black;text-decoration:none;")(href='/users/proInfo') Your Order

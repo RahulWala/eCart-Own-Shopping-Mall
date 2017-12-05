@@ -18,6 +18,7 @@ app.use(session({
 	name	: 	'myFirstCookie',
 	secret	: 	'R@W@1209348756',
 	resave	: 	 true,
+	
 	httpOnly: 	 true,
 	saveUninitialized : true,
 	cookie 	: 	{ secure : false}
