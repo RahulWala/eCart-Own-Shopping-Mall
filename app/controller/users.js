@@ -126,7 +126,6 @@ module.exports.controllerFunction = function(app){
 					// console.log(err);
 					res.render('error');
 				} else{
-
 					res.render('error',{title: "Product Added"});
 				}
 			});
@@ -143,6 +142,8 @@ module.exports.controllerFunction = function(app){
 				// console.log(err);
 				res.render('error',{title : "Something Went Wrong"});
 			}else{
+				console.log(foundPro);
+				req.session.cartPro = foundPro;
 				res.render('viewPro',{proInfo : foundPro});
 			}
 		});
@@ -150,57 +151,58 @@ module.exports.controllerFunction = function(app){
 
 	//////////////// Adding to Cart function /////////////
 	appRouter.post('/addCart/:id',auth.isLoggedIn,function(req,res,next){
-		eCart.findOneAndUpdate({"_id":req.session.user},{$push : {cart:req.params.id}},function(err,userFound){
+		eProduct.findOne({"_id":req.params.id},function(err,gotProduct){
 			if(err){
-				res.render('error',{title : "Something Went Wrong"});
-			}else if(userFound == null || userFound == undefined || userFound==""){
-				res.render('error', {title : "User Not Found"});
-			}else{
-				res.render('product',{user:userFound});
-				}
-			});
+			}
+			else{   
+				eCart.findOneAndUpdate({"_id":req.session.user},{$push : {cart:gotProduct}},{new:true},function(err,userFound){
+					if(err){
+						res.render('error',{title : "Something Went Wrong"});
+					}
+					else if(userFound == null || userFound == undefined || userFound==""){
+						res.render('error', {title : "User Not Found"});
+					}
+					else{
+						req.session.userFound = userFound;
+						res.render('product',{user:userFound});
+					}
+				});
+			}
 		});
+	});
 
 	////////////// Viewing to cart function and making payment function /////////////////
 	appRouter.post('/viewCart/:id',auth.isLoggedIn,function(req,res,next){
-		eCart.findOne({"_id":req.params.id},function(err,result){
+		eCart.findOne({'_id':req.params.id},function(err,users){
 			if(err){
-				res.render('error',{title : "You are not logged in"});
-			}else if(result == null || result == undefined || result ==""){
-				res.render('error', {title : "Cart is empty!!!"});
-			}else{
-				console.log(result.cart);
-				res.render('viewCart',{items : result.cart.proName});
+				res.render('error',{title : "Something Went Wrong"});
+			}
+			else{
+				console.log("users "+users);
+				res.render('viewCart',{items : users.cart});
 			}
 		});
-
 	});
 
 
 	/////////////// Delete product from cart ////////////////
 	appRouter.post('/delete/:id',auth.isLoggedIn,function(req,res,next){
-		eCart.update({"_id":req.session.user},{$pull:{"cart":{"_id":req.params.id}}},{new:true},function(err,deleteProduct){
+		eProduct.findOne({'_id':req.params.id},function(err,proFound){
 			if(err){
 				res.render('error',{title : "Something Went Wrong"});
-			}else if(deleteProduct == null || deleteProduct == undefined || deleteProduct == ""){
-				res.render('error',{title : "Product Doesn't exists"});
-			}else{
-				console.log(deleteProduct);
-				res.render('error', {title : "Product removed"});
+			}else if(proFound == null || proFound == "" || proFound == undefined){
+				res.render('error',{title : "Product doesn't exist"});
 			}
-
+			else{
+				eCart.update({'_id':req.session.user},{$pull : {cart : proFound}},{new:true,multi:true},function(err,result){
+					if(err){
+						res.render('error',{title : "Something Went Wrong"});
+					}else{
+						res.render('error',{title : "Product Removed From Cart"});
+					}
+				});
+			}
 		});
-
-
-		// eCart.findOneAndUpdate({'_id': req.session.user._id},{$pull:{cart:{'_id':req.params.id}}},{multi : true},function(err,result){
-		// 	if(err){
-		// 		res.render('error', {title : "Something went wrong"});
-		// 	}else if(result == "" || result == undefined || result == null){
-		// 		res.render('error', {title : "No such Product exist"})
-		// 	}else{
-		// 		res.render('viewCart',{items : req.session.user.cart});
-		// 	}
-		// })
 	});
 
 
