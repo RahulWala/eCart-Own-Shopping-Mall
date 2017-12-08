@@ -163,7 +163,6 @@ module.exports.controllerFunction = function(app){
 						res.render('error', {title : "User Not Found"});
 					}
 					else{
-						req.session.userFound = userFound;
 						res.render('product',{user:userFound});
 					}
 				});
@@ -194,7 +193,7 @@ module.exports.controllerFunction = function(app){
 				res.render('error',{title : "Product doesn't exist"});
 			}
 			else{
-				eCart.update({'_id':req.session.user},{$pull : {cart : proFound}},{new:true,multi:true},function(err,result){
+				eCart.findOneAndUpdate({'_id':req.session.user},{$pull:{cart:proFound}},function(err,result){
 					if(err){
 						res.render('error',{title : "Something Went Wrong"});
 					}else{
