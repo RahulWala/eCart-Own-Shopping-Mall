@@ -235,30 +235,30 @@ module.exports.controllerFunction = function(app){
 
 
 	/////////////// Delete product from cart ////////////////
-	appRouter.post('/delete/:id',auth.isLoggedIn,function(req,res,next){
-		eProduct.findOne({'_id':req.params.id},function(err,proFound){
-			if(err){
-				res.render('error',{title : "Something Went Wrong"});
-			}else if(proFound == null || proFound == "" || proFound == undefined){
-				eCart.findOneAndUpdate({'_id':req.session.user},{$pull:{cart:proFound}},function(err,result){
-					if(err){
-						res.render('error',{title : "Something Went Wrong"});
-					}else{
-						res.render('error',{title : "Product Removed From Cart"});
-					}
-				});
-			}
-			else{
-				eCart.findOneAndUpdate({'_id':req.session.user},{$pull:{cart:proFound}},function(err,result){
-					if(err){
-						res.render('error',{title : "Something Went Wrong"});
-					}else{
-						res.render('error',{title : "Product Removed From Cart"});
-					}
-				});
-			}
-		});
-	});
+	// appRouter.post('/delete/:id',auth.isLoggedIn,function(req,res,next){
+	// 	eProduct.findOne({'_id':req.params.id},function(err,proFound){
+	// 		if(err){
+	// 			res.render('error',{title : "Something Went Wrong"});
+	// 		}else if(proFound == null || proFound == "" || proFound == undefined){
+	// 			eCart.findOneAndUpdate({'_id':req.session.user},{$pull:{cart:proFound}},function(err,result){
+	// 				if(err){
+	// 					res.render('error',{title : "Something Went Wrong"});
+	// 				}else{
+	// 					res.render('error',{title : "Product Removed From Cart"});
+	// 				}
+	// 			});
+	// 		}
+	// 		else{
+	// 			eCart.findOneAndUpdate({'_id':req.session.user},{$pull:{cart:proFound}},function(err,result){
+	// 				if(err){
+	// 					res.render('error',{title : "Something Went Wrong"});
+	// 				}else{
+	// 					res.render('error',{title : "Product Removed From Cart"});
+	// 				}
+	// 			});
+	// 		}
+	// 	});
+	// });
 
 
 	////////////// Deleting product from product list and cart also //////////////////////
@@ -266,7 +266,7 @@ module.exports.controllerFunction = function(app){
 
 		//Async function 
 		var getProduct = function(callback){
-			eProduct.findOne({'_id':req.params.id},auth.isLoggedIn,function(err,result){
+			eProduct.findOne({'_id':req.params.id},function(err,result){
 				if(err){
 					var myResponse = responseGenerator.generate(true,err,500,null);
 					callback(myResponse);
@@ -278,7 +278,7 @@ module.exports.controllerFunction = function(app){
 		}
 
 		var getUser = function(arg,callback){
-			eCart.findOne({'_id':req.session.user._id},auth.isLoggedIn,function(err,user){
+			eCart.findOne({'_id':req.session.user._id},function(err,user){
 				if(err){
 					var myResponse = responseGenerator.generate(true,err,500,null);
 					callback(myResponse);
@@ -290,6 +290,18 @@ module.exports.controllerFunction = function(app){
 
 		var deletingProduct = function(arg,arg1,callback){
 			eProduct.remove({"_id":req.params.id},function(err,pro){
+				if(err){
+					var myResponse = responseGenerator.generate(true,err,500,null);
+					callback(myResponse);
+				}else{
+					var myResponse = responseGenerator.generate(false,"Product Deleted Successfully",200,pro);
+					callback(null,myResponse);
+				}
+			});
+		}
+
+		var deleteCart = function(arg,arg1,callback){
+			eCart.findOneAndUpdate({"_id":req.session.user._id},{$pull:{"cart":{"_id":req.params.id}}},function(err,resultCart){
 				if(err){
 					var myResponse = responseGenerator.generate(true,err,500,null);
 					callback(myResponse);
