@@ -22,5 +22,13 @@ block content
 									br 
 									p #{pro.comment}
 					.card-footer
-						form(method="post",action="http://localhost:3000/users/addCart/#{pro._id}")
-							button.btn.btn-primary.btn-lg Add To Cart
+						.row.text-center
+							.col-lg-4.col-md-4.col-sm-4
+								form(method="post",action="http://localhost:3000/users/addCart/#{pro._id}")
+									button.btn.btn-primary.btn-lg Add To Cart
+							.col-lg-4.col-md-4.col-sm-4
+								a(href="/users/editPro/#{pro._id}")
+									button.btn.btn-primary.btn-lg Edit Info
+							.col-lg-4.col-md-4.col-sm-4
+								form(method="post",action="http://localhost:3000/users/deletePro/#{pro._id}")
+									button.btn.btn-primary.btn-lg Delete Product

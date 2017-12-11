@@ -7,7 +7,7 @@ var eCart 		= mongoose.model('User');
 var responseGenerator = require('./../../libs/responseGenerator');
 var eProduct  	= mongoose.model('Product');
 
-
+var async = require("async");
 
 module.exports.controllerFunction = function(app){
 
@@ -139,11 +139,10 @@ module.exports.controllerFunction = function(app){
 	appRouter.post('/viewPro',function(req,res){
 		eProduct.find(function(err,foundPro){
 			if(err){
-				// console.log(err);
 				res.render('error',{title : "Something Went Wrong"});
 			}else{
-				console.log(foundPro);
-				req.session.cartPro = foundPro;
+				// console.log(foundPro);
+				// req.session.cartPro = foundPro;
 				res.render('viewPro',{proInfo : foundPro});
 			}
 		});
@@ -163,9 +162,60 @@ module.exports.controllerFunction = function(app){
 						res.render('error', {title : "User Not Found"});
 					}
 					else{
+						console.log("UF "+userFound);
 						res.render('product',{user:userFound});
 					}
 				});
+			}
+		});
+	});
+
+	///////////// Sending view ////////////////
+	appRouter.get('/editPro/:id',function(req,res){
+		res.render('proInfo');
+	});
+
+	///////////////// Editing info of a product ////////////////////
+	appRouter.post('/editPro/:id',auth.isLoggedIn,function(req,res,next){
+		eProduct.findOne({'_id':req.params.id},function(err,result){
+			if(err){
+				res.render('error',{title : "Something Went Wrong"});
+			}else if(result  == null || result == undefined || result == ""){
+				res.render('error', {title : "Product Doesn't exist"});
+			}else{
+				eProduct.findOneAndUpdate({'_id':req.params.id},function(err,update){
+					if(err){
+						res.render('error',{title : "Something Went Wrong"});
+					}else if(update == null || update == undefined || update == ""){
+						res.render('error', {title : "Product Doesn't exist"});
+					}else{
+						console.log("pro "+update);
+						res.render('error',{title : "Came here"});
+					}
+				});
+			}
+		});
+	});
+
+	/////////////// Deleteing product  ////////////////
+	appRouter.post('/deletePro/:id',auth.isLoggedIn,function(req,res,next){
+		eProduct.findOne({'_id':req.params.id},function(err,result){
+			if(err){
+				res.render('error',{title : "Something Went Wrong"});
+			}else if(result == null || result == undefined || result == ""){
+				eProduct
+				res.render("error",{title : "Product doesn't exist"});
+			}else{
+				// console.log('id is '+req.params.id);
+				eProduct.remove().where({'_id':req.params.id}).exec((function(err,result){
+					if(err){
+						res.render('error',{title : "Something Went Wrong"});
+					}else if(result == null || result == undefined || result == ""){
+						res.render('error',{title : "Product doesn't exists"});
+					}else{
+						res.render("error",{title : "Product Removed Successfully"});
+					}
+				}));
 			}
 		});
 	});
@@ -177,7 +227,7 @@ module.exports.controllerFunction = function(app){
 				res.render('error',{title : "Something Went Wrong"});
 			}
 			else{
-				console.log("users "+users);
+				// console.log("users "+users);
 				res.render('viewCart',{items : users.cart});
 			}
 		});
@@ -190,7 +240,13 @@ module.exports.controllerFunction = function(app){
 			if(err){
 				res.render('error',{title : "Something Went Wrong"});
 			}else if(proFound == null || proFound == "" || proFound == undefined){
-				res.render('error',{title : "Product doesn't exist"});
+				eCart.findOneAndUpdate({'_id':req.session.user},{$pull:{cart:proFound}},function(err,result){
+					if(err){
+						res.render('error',{title : "Something Went Wrong"});
+					}else{
+						res.render('error',{title : "Product Removed From Cart"});
+					}
+				});
 			}
 			else{
 				eCart.findOneAndUpdate({'_id':req.session.user},{$pull:{cart:proFound}},function(err,result){
@@ -205,6 +261,63 @@ module.exports.controllerFunction = function(app){
 	});
 
 
+	////////////// Deleting product from product list and cart also //////////////////////
+	appRouter.post('/delete/:id',auth.isLoggedIn,function(req,res){
+
+		//Async function 
+		var getProduct = function(callback){
+			eProduct.findOne({'_id':req.params.id},auth.isLoggedIn,function(err,result){
+				if(err){
+					var myResponse = responseGenerator.generate(true,err,500,null);
+					callback(myResponse);
+				}else{
+					console.log(result);
+					callback(null,result);
+				}
+			});
+		}
+
+		var getUser = function(arg,callback){
+			eCart.findOne({'_id':req.session.user._id},auth.isLoggedIn,function(err,user){
+				if(err){
+					var myResponse = responseGenerator.generate(true,err,500,null);
+					callback(myResponse);
+				}else{
+					callback(null,arg,user);
+				}
+			});
+		}
+
+		var deletingProduct = function(arg,arg1,callback){
+			eProduct.remove({"_id":req.params.id},function(err,pro){
+				if(err){
+					var myResponse = responseGenerator.generate(true,err,500,null);
+					callback(myResponse);
+				}else{
+					var myResponse = responseGenerator.generate(false,"Product Deleted Successfully",200,pro);
+					callback(null,myResponse);
+				}
+			});
+		}
+
+		async.waterfall([
+			getProduct,
+			getUser,
+			deletingProduct
+			],function(err,result){
+				if(err){
+					res.render("error",{title : "Something Went Wrong"});
+				}else{
+					eCart.update({},{$pull : {"cart" : {"_id" : req.params.id}}},{multi : true},function(){
+						if(err){
+							res.render("error", {title : "Something Went Wrong"})
+						}else{
+							res.render("error",{title : "Product deleted Successfully"});
+						}
+					});
+				}
+			});
+	});
 
 
 
@@ -214,6 +327,7 @@ module.exports.controllerFunction = function(app){
 			res.redirect('/users/index');
 		});
 	});
+
 
 
 	////////////// Setting default route ///////////////////
