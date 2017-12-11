@@ -315,7 +315,8 @@ module.exports.controllerFunction = function(app){
 		async.waterfall([
 			getProduct,
 			getUser,
-			deletingProduct
+			deletingProduct,
+			deleteCart
 			],function(err,result){
 				if(err){
 					res.render("error",{title : "Something Went Wrong"});
