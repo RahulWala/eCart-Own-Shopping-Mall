@@ -306,7 +306,7 @@ module.exports.controllerFunction = function(app){
 					var myResponse = responseGenerator.generate(true,err,500,null);
 					callback(myResponse);
 				}else{
-					var myResponse = responseGenerator.generate(false,"Product Deleted Successfully",200,pro);
+					var myResponse = responseGenerator.generate(false,"Product Deleted Successfully",200,resultCart);
 					callback(null,myResponse);
 				}
 			});
