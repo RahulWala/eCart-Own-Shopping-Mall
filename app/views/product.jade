@@ -18,5 +18,5 @@ block content
 					form(method='post',action='http://localhost:3000/users/viewPro')
 						button.btn.btn-block.btn-lg.btn-primary(style="color:black;")(type='submit') View Product
 			.col-lg-4.col-md-4.col-sm-4.text-center.btn
-				form(method="post", action="http://localhost:3000/users/viewCart/#{user._id}")
-					button.btn.btn-lg.btn-primary.btn-block View Cart
+				button.btn.btn-lg.btn-primary.btn-block
+					a(href="/users/viewCart/#{user._id}") View Cart

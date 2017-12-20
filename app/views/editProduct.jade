@@ -1,0 +1,12 @@
+extends base
+
+block content
+	.row
+		.col-lg-12.col-md-12.col-sm-12
+			h3.text-center #{user.proName}
+			form(method="POST", action="http://localhost:3000/users/editPro/#{user._id}")
+				input(type='hidden',name="_method",value="PUT")
+				p Product Name
+					input(type="text",name="name",value="#{user.proName}")
+				p
+					input(type="submit")
