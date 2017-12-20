@@ -249,7 +249,7 @@ module.exports.controllerFunction = function(app){
 
 	appRouter.put('/editPro/:id',auth.isLoggedIn,function(req,res){
 
-		var update = req.body.value;
+		var update = req.body;
 		console.log("requested "+req.body);
 
 		var getProduct = function(callback){
