@@ -249,7 +249,7 @@ module.exports.controllerFunction = function(app){
 
 	appRouter.put('/editPro/:id',auth.isLoggedIn,function(req,res){
 
-		var update = req.body.value;
+		var update = req.body;
 		console.log("requested "+req.body);
 
 		var getProduct = function(callback){
@@ -264,8 +264,7 @@ module.exports.controllerFunction = function(app){
 		}
 
 		var updatePro = function(arg,callback){
-			console.log("arg : "+arg);
-			eProduct.update({'_id':arg._id},{arg.proName : req.body.proName},{new:true},function(err,update){
+			eProduct.findByIdAndUpdate({'_id':arg._id},update,{new:true},function(err,update){
 				if(err){
 					var myResponse = responseGenerator.generate(true,err,500,null);
 				}else{
