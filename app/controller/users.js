@@ -1,44 +1,41 @@
 var mongoose 	= require('mongoose');
 var express 	= require('express');
-var auth 		= require('./../../middlewares/auth');
+var async 		= require("async");
+var nodemailer	= require('nodemailer');
+var crypto		= require('crypto');
+var passport	= require('passport');
 
 //express router used to define route
 var appRouter 	= express.Router();
+
 var eCart 		= mongoose.model('User');
-var responseGenerator = require('./../../libs/responseGenerator');
 var eProduct  	= mongoose.model('Product');
 
-var async = require("async");
+var responseGenerator	= require('./../../libs/responseGenerator');
+var auth 				= require('./../../middlewares/auth');
+// var crypto		= require('./../../libs/crypto');
+
 
 module.exports.controllerFunction = function(app){
-
 
 	//All pages routing path
 	appRouter.get('/index',function(req,res){
 		res.render('index');
 	});
 
-	appRouter.get('/proInfo',function(req,res){
+	appRouter.get('/proInfo',auth.isLoggedIn,function(req,res){
 		res.render('proInfo');
 	});
 
-	appRouter.get('/viewPro',function(req,res){
+	appRouter.get('/viewPro',auth.isLoggedIn,function(req,res){
 		res.render('viewPro');
 	});
 
-	// appRouter.get('/signup/screen',function(req,res){
-	// 	res.render('signup');
-	// });
-
-	// appRouter.get('/login/screen',function(req,res){
-	// 	res.render('login');
-	// });	
-
-	appRouter.get('/cart/screen',function(req,res){
+	appRouter.get('/cart/screen',auth.isLoggedIn,function(req,res){
 		res.render('cart');
 	});
 
-	appRouter.get('/product',function(req,res){
+	appRouter.get('/product',auth.isLoggedIn,function(req,res){
 		res.render('product');
 	});
 
@@ -56,17 +53,22 @@ module.exports.controllerFunction = function(app){
 				lastName		: 	req.body.lastName,
 				emailId			: 	req.body.emailId,
 				mobileNumber	: 	req.body.mobileNumber,
-				password		: 	req.body.password
-			});
+				password		: 	req.body.password,
 
+			});
 			// console.log("data addedd");
-			newUser.save(function(error){
+			newUser.save(function(error,result){
 				if(error){
 					// console.log("error is here");
 					// var myResponse = responseGenerator.generate(true,"Enter correct value",406,null);
 					// console.log(error);
 					// res.send(myResponse);
+					req.flash('info',"Something is missing");
 					res.render('error');
+				}else if(result.emailId == null || result.emailId == "" || result.password == null || result.password == "" && result.mobileNumber == null || result.mobileNumber == "" && result.lastName == null || result.last
+					 == "" && result.firstName == null || result.firstName == "" && result.userName == null || result.userName == ""){
+					req.flash('error',"Some field is missing");
+					res.render('index');
 				}
 				else{
 					// console.log("error in else");
@@ -75,42 +77,163 @@ module.exports.controllerFunction = function(app){
 					// res.send(myResponse);
 					req.session.user = newUser;
 					delete req.session.user.password;
+					req.flash('success',"Successfully Signed Up");
 					res.render('index');
 				}
 			});//end newUser save
 		}
 		else{
 			// console.log("error in first else");
+			req.flash('error',"Some Fields are mssing");
 			res.render('error');
 		}
 	});
 
 	////////////////////// LogIn function /////////////////////
 	appRouter.post('/login',auth.loggedInUser,function(req,res){
+		// console.log("Came here");
 		eCart.findOne({$and:[{'emailId':req.body.emailId},{'password':req.body.password}]}).exec(function(err,foundUser){
 			// console.log(foundUser+"came in login function");
 			if(err){
 				// console.log("error in starting");
 				// var myResponse = responseGenerator.generate(true,"Serious error",404,null);
 				// res.send(myResponse);
+				req.flash('error','There is some error');
 				res.render('error');
 			}else if(foundUser == null || foundUser == undefined || foundUser.emailId == undefined || foundUser.password == null){
-				// console.log("eroor due to user info");
+				// console.log("error due to user info");
 				// var myResponse = responseGenerator.generate(true,"Check your Email Id and Password",404,null);
 				// res.send(myResponse);
-				res.render('error',{title : "User Not Found"});
-			}
-			else{
+				req.flash('error','Invalid Username or Password');
+				res.redirect('/users/index');
+			}else{
 				// var myResponse = responseGenerator.generate(false,"Successfully logged in",200,myResponse);
 				// res.send(myResponse);
 				// console.log(foundUser);
+				req.flash('success','Successfully logged in. Enjoy Shopping!!');
 				req.session.user = foundUser;
-				
 				res.render('product',{user : foundUser});
 			}
 		});
 	});
-	
+
+	///////////////
+	appRouter.get('/forgot',function(req,res){
+		res.render('forgotPro');
+	});
+
+	//////////  Reseting password  ////////////
+	appRouter.post('/forgot', function(req, res, next) {
+	  async.waterfall([
+	    function(done) {
+	      crypto.randomBytes(20, function(err, buf) {
+	        var token = buf.toString('hex');
+	        done(err, token);
+	      });
+	    },
+	    function(token, done) {
+	      eCart.findOne({ emailId: req.body.emailId }, function(err, user) {
+	        if (!user) {
+	          req.flash('error', 'No account with that email address exists.');
+	          return res.redirect('/users/forgot');
+	        }
+	       // console.log(user);
+	        user.resetPasswordToken = token;
+	        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+	        user.save(function(err,user) {
+	        	console.log(user);
+	          done(err, token, user);
+	        });
+	      });
+	    },
+	    function(token, user, done) {
+	      var smtpTransport = nodemailer.createTransport({
+	        service: 'Gmail',
+	        auth: {
+	          user: 'rahulwala72@gmail.com',
+	          pass: '01475963'
+	        }
+	      });
+	      var mailOptions = {
+	        to: user.emailId,
+	        from: 'eCart service',
+	        subject: 'eCart Password Reset',
+	        text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+	          'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+	          'http://' + req.headers.host + '/users/reset/' + token + '\n\n' +
+	          'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+	      };
+	      smtpTransport.sendMail(mailOptions, function(err) {
+	        req.flash('info', 'An e-mail has been sent to ' + user.emailId + ' with further instructions.');
+	        done(err, 'done');
+	      });
+	    }
+	  ], function(err) {
+	    if (err) return next(err);
+	    res.redirect('/users/index');
+	  });
+	});
+
+	////////redirecting for newPassword///////
+	appRouter.get('/reset/:token', function(req, res) {
+	  eCart.findOne({resetPasswordToken : req.params.token}, function(err, user) {
+	    	console.log(req.params.token);
+	    if (!user) {
+	    	req.flash('error', 'Password reset token is invalid or has expired.');
+	    	return res.redirect('/users/forgot');
+	    }
+	    res.render('reset', {user: req.user});
+	  });
+	});
+
+	///////////ROute to newPassword password /////////////
+	appRouter.post('/reset/:token', function(req, res) {
+		// console.log("2"+req.params.token);
+	  async.waterfall([
+	    function(done) {
+	      eCart.findOne({ resetPasswordToken : req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
+	        if (!user) {
+	        	// console.log(err);
+	        	req.flash('error', 'Password reset token is invalid or has expired.');
+	        	return res.redirect('/users/index');
+	        }
+
+	        user.password = req.body.password;
+	        user.resetPasswordToken = undefined;
+	        user.resetPasswordExpires = undefined;
+
+	        user.save(function(err) {
+	          done(err,user);
+	        });
+	      });
+	    },
+	    function(user, done) {
+	      var smtpTransport = nodemailer.createTransport({
+	        service: 'Gamil',
+	        auth: {
+	          user: 'rahulwala72@gmail.com',
+	          pass: '01475963'
+	        }
+	      });
+	      var mailOptions = {
+	        to: user.emailId,
+	        from: 'passwordreset@demo.com',
+	        subject: 'Your password has been changed',
+	        text: 'Hello,\n\n' +
+	          'This is a confirmation that the password for your account ' + user.emailId + ' has just been changed.\n'
+	      };
+	      smtpTransport.sendMail(mailOptions, function(err) {
+	        req.flash('success', 'Success! Your password has been changed.');
+	        done(err);
+	      });
+	    }
+	  ], function(err) {
+	    res.render('index');
+	  });
+	});
+
+
 	///////////////// Adding Product Info //////////////
 	appRouter.post('/proInfo',auth.isLoggedIn,function(req,res){
 		if(req.body.proName != undefined && req.body.price != undefined && req.body.category != undefined){
@@ -173,7 +296,7 @@ module.exports.controllerFunction = function(app){
 	});
 
 	///////////// Sending view ////////////////
-	appRouter.get('/editPro/:id',function(req,res){
+	appRouter.get('/editPro/:id',auth.isLoggedIn,function(req,res){
 		res.render('proInfo');
 	});
 
@@ -198,29 +321,6 @@ module.exports.controllerFunction = function(app){
 			}
 		});
 	});
-
-	// /////////////// Deleteing product  ////////////////
-	// appRouter.post('/deletePro/:id',auth.isLoggedIn,function(req,res,next){
-	// 	eProduct.findOne({'_id':req.params.id},function(err,result){
-	// 		if(err){
-	// 			res.render('error',{title : "Something Went Wrong"});
-	// 		}else if(result == null || result == undefined || result == ""){
-	// 			eProduct
-	// 			res.render("error",{title : "Product doesn't exist"});
-	// 		}else{
-	// 			// console.log('id is '+req.params.id);
-	// 			eProduct.remove().where({'_id':req.params.id}).exec((function(err,result){
-	// 				if(err){
-	// 					res.render('error',{title : "Something Went Wrong"});
-	// 				}else if(result == null || result == undefined || result == ""){
-	// 					res.render('error',{title : "Product doesn't exists"});
-	// 				}else{
-	// 					res.render("error",{title : "Product Removed Successfully"});
-	// 				}
-	// 			}));
-	// 		}
-	// 	});
-	// });
 
 	////////////// Viewing to cart function and making payment function /////////////////
 	appRouter.get('/viewCart/:id',auth.isLoggedIn,function(req,res,next){
@@ -250,7 +350,10 @@ module.exports.controllerFunction = function(app){
 	appRouter.put('/editPro/:id',auth.isLoggedIn,function(req,res){
 
 		var update = req.body;
-		console.log("requested "+req.body);
+		/// requesting body
+		// console.log(req.body);
+		// requesting product name
+		console.log(req.body.proName);
 
 		var getProduct = function(callback){
 			eProduct.findById({'_id':req.params.id},function(err,result){
@@ -268,8 +371,20 @@ module.exports.controllerFunction = function(app){
 				if(err){
 					var myResponse = responseGenerator.generate(true,err,500,null);
 				}else{
-					console.log("update value : "+update);
+					// This is update value 
+					// console.log("update value : "+update);
 					var myResponse = responseGenerator.generate(false,"Product Info Updated Successfully",200,update);
+					callback(null,arg,update);
+				}
+			});
+		}
+
+		var productCart = function(arg,arg1,callback){
+			eCart.findOneAndUpdate({'_id':req.session.user},update,{multi:true},function(err,updateCarts){
+				if(err){
+					var myResponse = responseGenerator.generate(true,err,500,null);
+				}else{
+					var myResponse = responseGenerator.generate(false,"Updated",200,updateCarts);
 					callback(null,myResponse);
 				}
 			});
@@ -277,7 +392,8 @@ module.exports.controllerFunction = function(app){
 
 		async.waterfall([
 			getProduct,
-			updatePro
+			updatePro,
+			productCart
 			],function(err,result){
 				if(err){
 					res.render("error",{title : "Something Went Wrong"});
@@ -287,33 +403,7 @@ module.exports.controllerFunction = function(app){
 			});
 	});
 
-	/////////////// Delete product from cart ////////////////
-	// appRouter.post('/delete/:id',auth.isLoggedIn,function(req,res,next){
-	// 	eProduct.findOne({'_id':req.params.id},function(err,proFound){
-	// 		if(err){
-	// 			res.render('error',{title : "Something Went Wrong"});
-	// 		}else if(proFound == null || proFound == "" || proFound == undefined){
-	// 			eCart.findOneAndUpdate({'_id':req.session.user},{$pull:{cart:proFound}},function(err,result){
-	// 				if(err){
-	// 					res.render('error',{title : "Something Went Wrong"});
-	// 				}else{
-	// 					res.render('error',{title : "Product Removed From Cart"});
-	// 				}
-	// 			});
-	// 		}
-	// 		else{
-	// 			eCart.findOneAndUpdate({'_id':req.session.user},{$pull:{cart:proFound}},function(err,result){
-	// 				if(err){
-	// 					res.render('error',{title : "Something Went Wrong"});
-	// 				}else{
-	// 					res.render('error',{title : "Product Removed From Cart"});
-	// 				}
-	// 			});
-	// 		}
-	// 	});
-	// });
-
-	////////////////Deketing from cart///////////////////
+	////////////////Deleting from cart///////////////////
 	appRouter.post('/delete/:id',auth.isLoggedIn,function(req,res){
 
 		var getProduct = function(callback){
@@ -423,16 +513,8 @@ module.exports.controllerFunction = function(app){
 				if(err){
 					res.render("error",{title : "Something Went Wrong"});
 				}else{
-					console.log("Parameter : "+result);
+					// console.log("Parameter : "+result);
 					res.render("error",{title : "Product Removed Successfully"});
-					// eCart.update({},{$pull:{"cart":{"_id":req.params.id}}},{multi:true},function(err,result){
-					// 	if(err){
-					// 		res.render("error", {title : "Something Went Wrong"})
-					// 	}else{
-					// 		// console.log("Result is : "+result);
-					// 		res.render("error",{title : "Product deleted Successfully"});
-					// 	}
-					// });
 				}
 			});
 	});
@@ -440,16 +522,15 @@ module.exports.controllerFunction = function(app){
 
 
 	////////////// LogOut function ///////////
-	appRouter.get('/logout',function(req,res){
+	appRouter.get('/logout',auth.isLoggedIn,function(req,res){
+
 		req.session.destroy(function(err){
 			if(err){
-				res.render("error",{title : "Something Went Wrong"});
 				console.log(err);
 			}else{
-				console.log(req.session);
-				res.redirect('/users/index');	
+				console.log("came here   qw");
+				res.redirect('/users/index');
 			}
-
 		});
 	});
 
@@ -458,5 +539,3 @@ module.exports.controllerFunction = function(app){
 	////////////// Setting default route ///////////////////
 	app.use('/users',appRouter);
 }
-
-

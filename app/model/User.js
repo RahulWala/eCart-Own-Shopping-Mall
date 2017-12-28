@@ -9,10 +9,12 @@ var eCart = new Schema({
 	userName		: 	{type:String, default:'', required:true},
 	firstName		: 	{type:String, default:''},
 	lastName		: 	{type:String, default:''},
-	emailId			: 	{type:String, default:''},
+	emailId			: 	{type:String, default:'', required:true},
 	mobileNumber	: 	{type:Number, default:''},
-	password		: 	{type:String, default:''},
-	cart 			: 	[]
+	password		: 	{type:String, default:'', required:true},
+	cart 			: 	[],
+	resetPasswordToken		: {type:String},
+  	resetPasswordExpires	: Date
 }
 );
 

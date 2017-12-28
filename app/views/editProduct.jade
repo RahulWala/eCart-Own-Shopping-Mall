@@ -1,12 +1,40 @@
 extends base
 
 block content
-	.row
-		.col-lg-12.col-md-12.col-sm-12
-			h3.text-center #{user.proName}
-			form(method="POST", action="http://localhost:3000/users/editPro/#{user._id}")
-				input(type='hidden',name="_method",value="PUT")
-				p Product Name
-					input(type="text",name="name",value="#{user.proName}")
-				p
-					input(type="submit")
+	p.text-center <h2 class="text-center yo">Editing #{user.proName}!</h2>
+	form.text-center.mt-2(method='post', action='http://localhost:3000/users/editPro/#{user._id}')
+		input(type='hidden',name="_method",value="PUT")
+		.form-group.row
+			label.col-3(for='proName') Product Name
+			.col-4
+				input.form-control(type='text', name='proName', value='#{user.proName}')
+		.form-group.row
+			label.col-3(for='category') Category
+			.col-4
+				select.form-control(name='category',value="#{user.category}")
+					option Mobile
+					option TV
+					option Jewellery
+					option Laptop
+					option Footweear
+					option Clothes
+					option Accessories
+					option Furnitures
+					option Kitchen
+		.form-group.row
+			label.col-3(for='price') Price
+			.col-4
+				input.form-control(type='number', name='price',min="1", max="999999", value='#{user.price}')
+		.form-group.row
+			label.col-3(for='model') Model
+			.col-4
+				input.form-control(type='text', name='model', value="#{user.model}")
+		.form-group.row
+			label.col-3(for='seller') Seller
+			.col-4
+				input.form-control(type='text', name='seller', value="#{user.seller}")
+		.form-group.row
+			label.col-3(for='comment') Product Description
+			.col-4
+				textarea(type='text',rows='4', cols='52',name='comment',form='unform',value="#{user.seller}")
+		button.btn.btn-primary.text-center(type="submit") Save

@@ -1,4 +1,8 @@
 extends base
+style("text/css").
+  .yo{
+    color: red;
+  }
 
 block content
     .container-fluid
@@ -44,10 +48,15 @@ block content
                       .col-9
                         input.text-center.form-control(type='email', name='emailId', placeholder='JohnDoe@example.com')
                     .form-group.row
-                      label.col-3(for='passworrd') Enter Password
+                      label.col-3(for='passworrd') Password
                       .col-9
                         input.text-center.form-control(type='password',name='password')
-                    button.btn.btn-block.btn-lg(type='submit') LogIn
+                    .row
+                      .col-6
+                        button.btn.btn-block.btn-lg.bg-inverse(type='submit') LogIn    
+                  button.btn.btn-lg.btn-block.bg-inverse
+                    a(href="http://localhost:3000/users/forgot") Forgot Password?
+
     form
       a(href="#", value='Go back!',onclick='history.back()')
       input.btn.btn-primary(type='button', value='Go back!', onclick='history.back()')

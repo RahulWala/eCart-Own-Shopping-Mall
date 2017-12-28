@@ -2,6 +2,7 @@ doctype html
 html
   head
     title eCart - Own Shopping mall
+    
     block scripts
       // Botstrtap css file
       link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css', integrity='sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ', crossorigin='anonymous')
@@ -10,7 +11,8 @@ html
       script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js', integrity='sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn', crossorigin='anonymous')
       script(src='https://code.jquery.com/jquery-3.2.1.js', integrity='sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=', crossorigin='anonymous')
       link(href='https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css')
-
+      //- link(href='/css/style.css',rel='stylesheet')
+        
   body
     nav.navbar.navbar-toggleable-md.navbar-inverse.bg-inverse
       button.navbar-toggler.navbar-toggler-right(type='button', data-toggle='collapse', data-target='#navbarNavDropdown', aria-controls='navbarNavDropdown', aria-expanded='false', aria-label='Toggle navigation')
@@ -26,7 +28,7 @@ html
               span.sr-only (current)
           |      
           li.nav-item
-            a.nav-link(href='#') Pricing
+            a.nav-link(href='#') Products
           |       
           li.nav-item.dropdown
             a#navbarDropdownMenuLink.nav-link.dropdown-toggle(href='#', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
@@ -38,6 +40,19 @@ html
               a.dropdown-item(href='#') Another action
               |           
               a.dropdown-item(href='#') Something else here
+    .container.mt-3.text-center
+      if messages.error
+        .alert.alert-danger
+          strong
+            div= messages.error
+      if messages.info
+        .alert.alert-info
+          strong
+            div= messages.info
+      if messages.success
+        .alert.alert-success
+          strong
+            div= messages.success
     block content
     block footer
       footer

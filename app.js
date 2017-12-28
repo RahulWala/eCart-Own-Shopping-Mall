@@ -6,13 +6,17 @@ var cookieParser = 	require('cookie-parser');
 var session 	 = 	require('express-session');
 var mongoose 	 =  require('mongoose');
 var fs 			 =  require('fs');
+var methodOverride = require('method-override')
+var flash 		 =  require('express-flash');
 
 //used to get the path of our view files in our comp
 var path 		 = require('path');
 
 app.use(bodyParser.json({limit:'10mb',extended:true}));
 app.use(bodyParser.urlencoded({limit:'10mb',extended:true}));
-app.use(cookieParser());
+app.use(cookieParser('_method'));
+app.use(bodyParser.json());
+app.use(flash());
 
 app.use(session({
 	name	: 	'myFirstCookie',
@@ -22,6 +26,14 @@ app.use(session({
 	httpOnly: 	 true,
 	saveUninitialized : true,
 	cookie 	: 	{ secure : false}
+}));
+
+app.use(methodOverride(function(req,res){
+	if(req.body && typeof req.body == 'object' && '_method' in req.body){
+		var method = req.body._method;
+		delete req.body._method;
+		return method;
+	}
 }));
 
 //setting the templating engine
@@ -39,6 +51,7 @@ app.use(logger('dev'));
 
 //defining configuration of mongodb or at eCart it will create db
 var dbPath = "mongodb://localhost/eCart";
+
 
 //telling mongo db to connect at dbPath or connect database
 db = mongoose.connect(dbPath);

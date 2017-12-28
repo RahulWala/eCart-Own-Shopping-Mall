@@ -1,0 +1,9 @@
+extends base
+
+block content
+	.row
+		.col-9
+			form(method="post",action='http://localhost:3000/users/forgot')
+				legend Enter Email Id
+					input.form-control(type='text', name='emailId', placeholder='Enter Email Addresss')
+				button.btn-btn-lg(type='submit') Send Email
