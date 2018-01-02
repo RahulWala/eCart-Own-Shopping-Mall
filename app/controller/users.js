@@ -459,24 +459,17 @@ module.exports.controllerFunction = function(app){
 							for(var para in req.body) {
 							  	updateObj.$set['cart.$.'+para] = req.body[para];
 							}
-							
 							//updating cart product of all users
-							eCart.findOne({'cart.productId':req.params.id},function(err,result){
+							eCart.findByIdAndUpdate({'cart._id':req.params.id},updateObj,{multi:true})
+							.exec(function(err,update){
 								if(err){
+									console.log(err);
 									req.flash('error','Something Went Wrong');
 									res.render('product',{user:req.session.user});
 								}else{
-									console.log('product Found');
-									eCart.update({'cart.productId':req.params.id},updateObj,{multi:true},function(err,update){
-										if(err){
-											req.flash('error','Something Went Wrong');
-											res.render('product',{user:req.session.user});
-										}else{
-											console.log(update);
-											req.flash('success','Product Updated Successfully');
-											res.render('product',{user:req.session.user});
-										}
-									});
+									console.log(update);
+									req.flash('success','Product Updated Successfully');
+									res.render('product',{user:req.session.user});
 								}
 							});
 						}else{

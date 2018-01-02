@@ -5,7 +5,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var cartContent = new Schema({
-	productId	: 	{type:mongoose.Schema.Types.ObjectId,ref:'Product'},
+
+	_id			: 	{type:mongoose.Schema.Types.ObjectId},
 	proName		: 	{type:String,default:'',required:true},
 	category	: 	{type:String},
 	price		: 	{type:Number,default:0,required:true}
