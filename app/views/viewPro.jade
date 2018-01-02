@@ -1,34 +1,48 @@
 extends base
 
 block content
-	.mt-2
 	for pro in proInfo
 		.row
 			.col-lg-12.col-md-12
-				.card
-					.card-header.text-center
-						p #{pro.proName}
-					.card-block
-						.card-text
-							.row
-								.col-lg-6.col-md-6.col-sm-12
-									p Category : &nbsp;#{pro.category}
-									p Model&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;#{pro.model}
-								.col-lg-6.col-md-6.col-sm-12
-									p Product Seller : &nbsp;#{pro.seller}
-									p Price &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;#{pro.price}/-
-								.col-lg-12.col-md-12.col-sm-12
-									p Product Description : 
-									brss
-									p #{pro.comment}
-					.card-footer
+				.row
+					.col-6
+						h4.text-center #{pro.proName}
+						hr(style="height:3px;width:30em;border:none;color:#034566;background-color:#034566;")
 						.row.text-center
-							.col-lg-4.col-md-4.col-sm-4
-								form(method="post",action="http://localhost:3000/users/addCart/#{pro._id}")
-									button.btn.btn-primary.btn-lg Add To Cart
-							.col-lg-4.col-md-4.col-sm-4
-								a(href="/users/edit/#{pro._id}")
-									button.btn.btn-primary.btn-lg Edit Info
-							.col-lg-4.col-md-4.col-sm-4
-								form(method="post",action="http://localhost:3000/users/deletePro/#{pro._id}")
-									button.btn.btn-primary.btn-lg Delete Product
+							.col-lg-6.col-md-6
+								h5 Seller : #{pro.seller}
+							.col-lg-6.col-md-6
+								h5 Price : #{pro.price}
+					.col-6.mt-4
+						a.btn.btn-primary.btn-lg(href="/users/singlePro/#{pro._id}") Detail
+						
+		//- .row
+		//- 	.col-lg-12.col-md-12
+		//- 		.card
+		//- 			.card-header.text-center
+		//- 				p #{pro.proName}
+		//- 			.card-block
+		//- 				.card-text
+		//- 					.row
+		//- 						.col-lg-6.col-md-6.col-sm-12
+		//- 							p Category : &nbsp;#{pro.category}
+		//- 							p Model&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;#{pro.model}
+		//- 						.col-lg-6.col-md-6.col-sm-12
+		//- 							p Product Seller : &nbsp;#{pro.seller}
+		//- 							p Price &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;#{pro.price}/-
+		//- 						.col-lg-12.col-md-12.col-sm-12
+		//- 							p Product Description : 
+		//- 							brss
+		//- 							p #{pro.comment}
+		//- 			.card-footer
+		//- 				.row.text-center
+		//- 					.col-lg-4.col-md-4.col-sm-4
+		//- 						form(method="post",action="http://localhost:3000/users/addCart/#{pro._id}")
+		//- 							button.btn.btn-primary.btn-lg Add To Cart
+		//- 					.col-lg-4.col-md-4.col-sm-4
+		//- 						a(href="/users/edit/#{pro._id}")
+		//- 							button.btn.btn-primary.btn-lg Edit Info
+		//- 					.col-lg-4.col-md-4.col-sm-4
+		//- 						form(method="post",action="http://localhost:3000/users/deletePro/#{pro._id}")
+		//- 							button.btn.btn-primary.btn-lg Delete Product
+		

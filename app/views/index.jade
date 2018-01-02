@@ -1,63 +1,41 @@
 extends base
-style("text/css").
-  .yo{
-    color: red;
-  }
 
 block content
     .container-fluid
-      p.text-center Welcome ! To eCart, Your Mini Shopping Mall
-      .row
-        .col-lg-6.col-md-6.col-sm-12.card
-          .card-block
-            .card-header.text-center Sign up here!
-            .card-title.text-center Create your own product just Signing up.
-            form(method='POST',action='http://localhost:3000/users/signup')
-              .form-group.row
-                label.col-3(for='firstName') First Name
-                .col-9
-                  input.text-center.form-control(type='text',name='firstName',placeholder='John')
-              .form-group.row
-                label.col-3(for='lastName') Last Name
-                .col-9
-                  input.text-center.form-control(type='text',name='lastName',placeholder='Doe')
-              .form-group.row
-                label.col-3(for='emailId') Email Address
-                .col-9
-                  input.text-center.form-control(type='email', name='emailId', placeholder='JohnDoe@example.com')
-              .form-group.row
-                label.col-3(for='mobileNumber') Mobile Number
-                .col-9
-                  input.text-center.form-control(type='Number', name='mobileNumber', placeholder='(+91)-1234567890')
-              .form-group.row
-                label.col-3(for='password') Enter Password
-                .col-9
-                  input.text-center.form-control(type='password',name='password')
-              button.btn.btn-block.btn-lg(type='submit') Signup
-
-        .col-lg-6.col-md-6.col-sm-12.text-center.card
-          .card-block
-            .card-header LogIn here!
-            .card-title Login, You are good to go!
-                br
-              .row
-                .col-lg-12.col-md-12.col-sm-12
-                  form(method='post', action='http://localhost:3000/users/login')
-                    .form-group.row
-                      label.col-3(for='email') Email Address
-                      .col-9
-                        input.text-center.form-control(type='email', name='emailId', placeholder='JohnDoe@example.com')
-                    .form-group.row
-                      label.col-3(for='passworrd') Password
-                      .col-9
-                        input.text-center.form-control(type='password',name='password')
-                    .row
-                      .col-6
-                        button.btn.btn-block.btn-lg.bg-inverse(type='submit') LogIn    
-                  button.btn.btn-lg.btn-block.bg-inverse
-                    a(href="http://localhost:3000/users/forgot") Forgot Password?
-
-    form
-      a(href="#", value='Go back!',onclick='history.back()')
-      input.btn.btn-primary(type='button', value='Go back!', onclick='history.back()')
-      i.fa.fa-chevron-left(aria-hidden='true')
+      h3.text-center Welcome ! To eCart, Your Mini Shopping Mall
+      hr(style="height:1.5px;border:none;color:#6d6c54;background-color:#6d6c54;")
+      .row.text-center
+        .col-lg-6.col-md-12.col-sm-12
+          h2 Register
+          hr(style="height:2px;border:none;color:#4c9bba;background-color:#4c9bba")
+          form(method="post",action="http://localhost:3000/users/signup")(style="padding:10px;")
+            h5.mr-auto First Name :
+            input.form-control(type='text',name='firstName',placeholder="John")
+            br
+            h5.mr-auto Last Name :
+            input.form-control(type='text',name='lastName',placeholder="Doe")
+            br
+            h5.mr-auto Email :
+            input.form-control(type='text',name='emailId',placeholder="johnDoe@example.com")
+            br
+            h5.mr-auto Mobile Number :
+            input.form-control(type='Number',name='mobileNumber',placeholder="1234567890")
+            br
+            h5.mr-auto Password :
+            input.form-control(type='password',name='password',placeholder='Password')
+            br
+            button.btn.btn-primary.btn-block(style="color:white;background-color:#4c9bba;border-color:black;") Register
+        .col-lg-6.col-md-12.col-sm-12
+          h2 Login
+          hr(style="height:2px;border:none;color:#ff6363;background-color:#ff6363;") 
+          form(method="post",action="http://localhost:3000/users/login")(style="padding:10px;")
+            h5.mr-auto Email :
+            input.form-control(type="text",placeholder="Email",name="emailId")
+            br
+            h5 Password :
+            input.form-control(type='password',name="password",placeholder="Password")
+            br
+            br
+            button.btn.btn-primary.btn-block(style="color:white;background-color:#ff6363;border-color:black") Login
+          a(href="http://localhost:3000/users/forgot")(style="text-decoration:none;font-weight:bold;")
+            h5 Forgot Password?

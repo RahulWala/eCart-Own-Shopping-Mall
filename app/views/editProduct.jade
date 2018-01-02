@@ -1,40 +1,44 @@
 extends base
 
 block content
-	p.text-center <h2 class="text-center yo">Editing #{user.proName}!</h2>
-	form.text-center.mt-2(method='post', action='http://localhost:3000/users/editPro/#{user._id}')
-		input(type='hidden',name="_method",value="PUT")
-		.form-group.row
-			label.col-3(for='proName') Product Name
-			.col-4
-				input.form-control(type='text', name='proName', value='#{user.proName}')
-		.form-group.row
-			label.col-3(for='category') Category
-			.col-4
-				select.form-control(name='category',value="#{user.category}")
-					option Mobile
-					option TV
-					option Jewellery
-					option Laptop
-					option Footweear
-					option Clothes
-					option Accessories
-					option Furnitures
-					option Kitchen
-		.form-group.row
-			label.col-3(for='price') Price
-			.col-4
-				input.form-control(type='number', name='price',min="1", max="999999", value='#{user.price}')
-		.form-group.row
-			label.col-3(for='model') Model
-			.col-4
-				input.form-control(type='text', name='model', value="#{user.model}")
-		.form-group.row
-			label.col-3(for='seller') Seller
-			.col-4
-				input.form-control(type='text', name='seller', value="#{user.seller}")
-		.form-group.row
-			label.col-3(for='comment') Product Description
-			.col-4
-				textarea(type='text',rows='4', cols='52',name='comment',form='unform',value="#{user.seller}")
-		button.btn.btn-primary.text-center(type="submit") Save
+	p.text-center <h2 class="text-center yo">Editing ! #{user.proName}</h2>
+	hr(style="height:1.5px;width:75em;border:none;color:#00a51e;background-color:#00a51e;")
+	.container-fluid
+		.row
+			.col-12
+				form.text-center.mt-2(method='post', action='http://localhost:3000/users/editPro/#{user._id}')
+					input(type='hidden',name="_method",value="PUT")
+					h5.mr-auto.form-group Product Name :
+					.container
+						input.form-control.col-12.m-auto.text-center(style="width:48em;")(type='text',name='proName',value="#{user.proName}")
+					br
+					h5.mr-auto.form-group Category :
+					.container
+						select.form-control.col-12.m-auto(style="width:48em;")(name='category',value="category")
+							option Mobile
+							option TV
+							option Jewellery
+							option Laptop
+							option Footwear
+							option Clothes
+							option Accessories
+							option Furnitures
+							option Kitchen
+					br
+					h5.mr-auto.form-group Price :
+					.container
+						input.form-control.col-12.m-auto.text-center(style="width:48em;")(type='number',name='price',value="#{user.price}")
+					br
+					h5.mr-auto.form-group Model :
+					.container
+						input.form-control.col-12.m-auto.text-center(style="width:48em;")(type='text',name='model',value="#{user.model}")
+					br
+					h5.mr-auto.form-group Seller :
+					.container
+						input.form-control.col-12.m-auto.text-center(style="width:48em;")(type='text',name='seller',value="#{user.seller}")
+					br
+					h5.mr-auto.form-group Description :
+					.container
+						input.form-control.col-12.m-auto.text-center(style="width:48em;")(type='text',name='descrip',value="#{user.descrip}")
+					br
+					button.btn.btn-lg(style="background-color:#00a51e;width:20em;") Save

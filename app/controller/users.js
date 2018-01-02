@@ -18,6 +18,8 @@ var auth 				= require('./../../middlewares/auth');
 
 module.exports.controllerFunction = function(app){
 
+	var infoOf = {};
+
 	//All pages routing path
 	appRouter.get('/index',function(req,res){
 		res.render('index');
@@ -25,10 +27,6 @@ module.exports.controllerFunction = function(app){
 
 	appRouter.get('/proInfo',auth.isLoggedIn,function(req,res){
 		res.render('proInfo');
-	});
-
-	appRouter.get('/viewPro',auth.isLoggedIn,function(req,res){
-		res.render('viewPro');
 	});
 
 	appRouter.get('/cart/screen',auth.isLoggedIn,function(req,res){
@@ -39,7 +37,7 @@ module.exports.controllerFunction = function(app){
 		res.render('product');
 	});
 
-	appRouter.get('/error/screen',function(req,res){
+	appRouter.get('/error/screen',auth.isLoggedIn,function(req,res){
 		res.render('error');
 	});
 
@@ -47,45 +45,54 @@ module.exports.controllerFunction = function(app){
 	appRouter.post('/signup',function(req,res){
 		if(req.body.firstName != undefined && req.body.lastName != undefined && req.body.emailId != undefined && req.body.password != undefined){
 
-			var newUser			= new eCart({
-				userName		: 	req.body.firstName+' '+req.body.lastName,
-				firstName		: 	req.body.firstName,
-				lastName		: 	req.body.lastName,
-				emailId			: 	req.body.emailId,
-				mobileNumber	: 	req.body.mobileNumber,
-				password		: 	req.body.password,
-
+			eCart.findOne({'emailId':req.body.emailId},function(err,user){
+				if(err){
+					req.flash('error','Something Went Wrong');
+					res.render('index');
+				}else if(user && user != null){
+					req.flash('error','Email Already Exists');
+					res.render('index');
+				} else{
+					var newUser			= new eCart({
+						userName		: 	req.body.firstName+' '+req.body.lastName,
+						firstName		: 	req.body.firstName,
+						lastName		: 	req.body.lastName,
+						emailId			: 	req.body.emailId,
+						mobileNumber	: 	req.body.mobileNumber,
+						password		: 	req.body.password
+					});
+					// console.log("data addedd");
+					newUser.save(function(error,result){
+						if(error){
+							// console.log("error is here");
+							// var myResponse = responseGenerator.generate(true,"Enter correct value",406,null);
+							// console.log(error);
+							// res.send(myResponse);
+							req.flash('info',"Something is missing");
+							res.render('error');
+						}else if(result.emailId == null || result.emailId == "" || result.password == null || result.password == "" && result.mobileNumber == null || result.mobileNumber == "" && result.lastName == null || result.last
+							 == "" && result.firstName == null || result.firstName == "" && result.userName == null || result.userName == ""){
+							req.flash('error',"Some field is missing");
+							res.render('index');
+						}
+						else{
+							// console.log("error in else");
+							// var myResponse = responseGenerator.generate(false,"Successfully generated",200,newUser);
+							// console.log(myResponse);
+							// res.send(myResponse);					req.session.user = newUser;
+							// delete req.session.user.password;
+							req.flash('success',"Successfully Signed Up");
+							res.render('index');
+						}
+					});//end newUser save
+				}
 			});
-			// console.log("data addedd");
-			newUser.save(function(error,result){
-				if(error){
-					// console.log("error is here");
-					// var myResponse = responseGenerator.generate(true,"Enter correct value",406,null);
-					// console.log(error);
-					// res.send(myResponse);
-					req.flash('info',"Something is missing");
-					res.render('error');
-				}else if(result.emailId == null || result.emailId == "" || result.password == null || result.password == "" && result.mobileNumber == null || result.mobileNumber == "" && result.lastName == null || result.last
-					 == "" && result.firstName == null || result.firstName == "" && result.userName == null || result.userName == ""){
-					req.flash('error',"Some field is missing");
-					res.render('index');
-				}
-				else{
-					// console.log("error in else");
-					// var myResponse = responseGenerator.generate(false,"Successfully generated",200,newUser);
-					// console.log(myResponse);
-					// res.send(myResponse);
-					req.session.user = newUser;
-					delete req.session.user.password;
-					req.flash('success',"Successfully Signed Up");
-					res.render('index');
-				}
-			});//end newUser save
+			
 		}
 		else{
 			// console.log("error in first else");
 			req.flash('error',"Some Fields are mssing");
-			res.render('error');
+			res.render('/users/index');
 		}
 	});
 
@@ -117,7 +124,7 @@ module.exports.controllerFunction = function(app){
 		});
 	});
 
-	///////////////
+	///////////////forgot api//////////////
 	appRouter.get('/forgot',function(req,res){
 		res.render('forgotPro');
 	});
@@ -142,7 +149,7 @@ module.exports.controllerFunction = function(app){
 	        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
 	        user.save(function(err,user) {
-	        	console.log(user);
+	        	// console.log(user);
 	          done(err, token, user);
 	        });
 	      });
@@ -178,7 +185,7 @@ module.exports.controllerFunction = function(app){
 	////////redirecting for newPassword///////
 	appRouter.get('/reset/:token', function(req, res) {
 	  eCart.findOne({resetPasswordToken : req.params.token}, function(err, user) {
-	    	console.log(req.params.token);
+	    	// console.log(req.params.token);
 	    if (!user) {
 	    	req.flash('error', 'Password reset token is invalid or has expired.');
 	    	return res.redirect('/users/forgot');
@@ -236,32 +243,53 @@ module.exports.controllerFunction = function(app){
 
 	///////////////// Adding Product Info //////////////
 	appRouter.post('/proInfo',auth.isLoggedIn,function(req,res){
-		if(req.body.proName != undefined && req.body.price != undefined && req.body.category != undefined){
-			var newPro = new eProduct({
-				proName 	: req.body.proName,
-				price 		: req.body.price,
-				seller		: req.body.seller,
-				model 		: req.body.model,
-				comment		: req.body.comment,
-				category	: req.body.category
-			});
+		eCart.findOne({'emailId':req.session.user.emailId},function(err,user){
+			if(err){
+				req.flash('error','User Not Found');
+				res.render('product',{user:req.session.user});
+			}else{
+				if(req.body.proName != undefined && req.body.price != undefined && req.body.category != undefined &&
+					req.body.seller != undefined && req.body.model != undefined && req.body.descrip != undefined){
+					var newPro = new eProduct({
+						owner 		: user,
+						proName 	: req.body.proName,
+						price 		: req.body.price,
+						seller		: req.body.seller,
+						model 		: req.body.model,
+						descrip		: req.body.descrip,
+						category	: req.body.category
+					});
 
-			newPro.save(function(err){					
-				if(err){
-					// console.log(err);
-					res.render('error');
-				} else{
-					res.render('error',{title: "Product Added"});
+					newPro.save(function(err,resul){					
+						if(err){
+							// console.log(err);
+							res.render('error');
+						} else{
+							eProduct.findOne({"owner":req.session.user}).populate('owner','emailId').exec(function(err,proOwner){
+								if(err){
+									res.render('error','You have no authority to add product');
+								}else{
+									// console.log("proOwner is : "+proOwner);
+									req.flash('success','Product Added Successfully');
+									res.render('product',{user:req.session.user});
+								}
+							});
+							
+							// res.render('error',{title: "Product Added"});
+						}
+					});
+				}else{
+					// console.log("You missed some parameter");
+					req.flash('error','Some fields were missing');
+					res.render('proInfo');
 				}
-			});
-		}else{
-			// console.log("You missed some parameter");
-			res.render('error',{title : 'You missed some field'});
-		}
+			}
+		});
+
 	});	
 
 	////////// To view Products /////////////////
-	appRouter.post('/viewPro',function(req,res){
+	appRouter.get('/viewPro',function(req,res){
 		eProduct.find(function(err,foundPro){
 			if(err){
 				res.render('error',{title : "Something Went Wrong"});
@@ -273,14 +301,28 @@ module.exports.controllerFunction = function(app){
 		});
 	});
 
+	///////////// Single info of a product ///////////////////
+	appRouter.get('/singlePro/:id',auth.isLoggedIn,function(req,res){
+		eProduct.findOne({'_id':req.params.id},function(err,proFound){
+			if(err){
+				req.flash('error',"Didn't found anything");
+			}else{
+				// console.log("Poduct found : "+proFound);
+				res.render('single',{product : proFound});
+			}
+		});
+	});
+
 	//////////////// Adding to Cart function /////////////
 	appRouter.post('/addCart/:id',auth.isLoggedIn,function(req,res,next){
 		eProduct.findOne({"_id":req.params.id},function(err,gotProduct){
 			if(err){
+				res.render('error','Product not found');
 			}
 			else{   
 				eCart.findOneAndUpdate({"_id":req.session.user},{$push : {cart:gotProduct}},{new:true},function(err,userFound){
 					if(err){
+						req.flash('error','Something Went Wrong');
 						res.render('error',{title : "Something Went Wrong"});
 					}
 					else if(userFound == null || userFound == undefined || userFound==""){
@@ -288,6 +330,7 @@ module.exports.controllerFunction = function(app){
 					}
 					else{
 						// console.log("UF "+userFound);
+						req.flash('success','Product Addedd to Cart');
 						res.render('product',{user:userFound});
 					}
 				});
@@ -314,7 +357,7 @@ module.exports.controllerFunction = function(app){
 					}else if(update == null || update == undefined || update == ""){
 						res.render('error', {title : "Product Doesn't exist"});
 					}else{
-						console.log("pro "+update);
+						// console.log("pro "+update);
 						res.render('error',{title : "Came here"});
 					}
 				});
@@ -350,13 +393,11 @@ module.exports.controllerFunction = function(app){
 	appRouter.put('/editPro/:id',auth.isLoggedIn,function(req,res){
 
 		var update = req.body;
-		/// requesting body
-		// console.log(req.body);
-		// requesting product name
-		console.log(req.body.proName);
 
 		var getProduct = function(callback){
-			eProduct.findById({'_id':req.params.id},function(err,result){
+			eProduct.findOne({'_id':req.params.id})
+			.populate({path:'owner',select:'emailId'})
+			.exec(function(err,result){
 				if(err){
 					var myResponse = responseGenerator.generate(true,err,500,null);
 				}else{
@@ -366,39 +407,83 @@ module.exports.controllerFunction = function(app){
 			});
 		}
 
-		var updatePro = function(arg,callback){
-			eProduct.findByIdAndUpdate({'_id':arg._id},update,{new:true},function(err,update){
+		var getUser = function(arg,callback){
+			eCart.findOne({'_id':req.session.user._id},function(err,proUser){
 				if(err){
 					var myResponse = responseGenerator.generate(true,err,500,null);
+					callback(null,myResponse);
 				}else{
-					// This is update value 
-					// console.log("update value : "+update);
-					var myResponse = responseGenerator.generate(false,"Product Info Updated Successfully",200,update);
-					callback(null,arg,update);
+					callback(null,arg,proUser);
 				}
 			});
 		}
 
-		var productCart = function(arg,arg1,callback){
-			eCart.findOneAndUpdate({'_id':req.session.user},update,{multi:true},function(err,updateCarts){
-				if(err){
-					var myResponse = responseGenerator.generate(true,err,500,null);
-				}else{
-					var myResponse = responseGenerator.generate(false,"Updated",200,updateCarts);
-					callback(null,myResponse);
-				}
-			});
+		var proUpdate = function(arg,arg1,callback){
+
+			///////Checking authority/////////
+			if(arg.owner.emailId == arg1.emailId){
+				eProduct.findByIdAndUpdate({'_id':arg._id},update,{new:true},function(err,update){
+					if(err){
+						var myResponse = responseGenerator.generate(true,err,401,null);
+						callback(null,myResponse);
+					}else{
+						// console.log('error 1')
+						infoOf.carts = true;
+						var myResponse = responseGenerator.generate(false,'Product Info Updated Successfully',200,infoOf.carts);
+						callback(null,myResponse);
+					}
+				});
+			}else{
+				infoOf.carts = false;
+				// console.log("error 2");
+				var myResponse = responseGenerator.generate(true,'You are not authorized user',403,infoOf.carts);
+				callback(null,myResponse);
+			}
 		}
 
 		async.waterfall([
 			getProduct,
-			updatePro,
-			productCart
+			getUser,
+			proUpdate
 			],function(err,result){
 				if(err){
+					req.flash('error','Something Went Wrong')
 					res.render("error",{title : "Something Went Wrong"});
 				}else{
-					res.render("error",{title : "Product Updated Successfully"});
+					if(result.message == 'You are not authorized user' || err){
+						req.flash('error','You are not authorized user');
+						res.render('product',{user:req.session.user});
+					}else{
+						if(infoOf.carts == true){
+							var updateObj = {$set:{}};
+							for(var para in req.body) {
+							  	updateObj.$set['cart.$.'+para] = req.body[para];
+							}
+							
+							//updating cart product of all users
+							eCart.findOne({'cart.productId':req.params.id},function(err,result){
+								if(err){
+									req.flash('error','Something Went Wrong');
+									res.render('product',{user:req.session.user});
+								}else{
+									console.log('product Found');
+									eCart.update({'cart.productId':req.params.id},updateObj,{multi:true},function(err,update){
+										if(err){
+											req.flash('error','Something Went Wrong');
+											res.render('product',{user:req.session.user});
+										}else{
+											console.log(update);
+											req.flash('success','Product Updated Successfully');
+											res.render('product',{user:req.session.user});
+										}
+									});
+								}
+							});
+						}else{
+							req.flash('error','You are not authorized user');
+							res.render('product',{user:req.session.user});
+						}
+					}
 				}
 			});
 	});
@@ -407,9 +492,9 @@ module.exports.controllerFunction = function(app){
 	appRouter.post('/delete/:id',auth.isLoggedIn,function(req,res){
 
 		var getProduct = function(callback){
-			eProduct.findOne({"_id":req.params.id},{new:true},function(err,products){
+			eProduct.findOne({"_id":req.params.id}).exec(function(err,products){
 				if(err){
-					var myResponse = responseGenerator.generate(true,err,500,null);
+					var myResponse = responseGenerator.generate(true,err,404,null);
 				}else{
 					callback(null,products);
 				}
@@ -419,7 +504,7 @@ module.exports.controllerFunction = function(app){
 		var getUser = function(arg,callback){
 			eCart.findOne({"_id":req.session.user._id},function(err,users){
 				if(err){
-					var myResponse = responseGenerator.generate(true,err,500,null);
+					var myResponse = responseGenerator.generate(true,err,403,null);
 				}else{
 					callback(null,arg,users);
 				}
@@ -445,10 +530,12 @@ module.exports.controllerFunction = function(app){
 			deleteCart
 			],function(err,result){
 				if(err){
-					res.render("error",{title : "Something Went Wrong"});
+					req.flash('error','You are not allow to delete');
+					res.render("product",{user : req.session.user});
 				}
 				else{
-					res.render("error",{title : "Product Removed From Cart"});
+					req.flash('success','Product Removed from cart');
+					res.render("product",{user:req.session.user});
 				}
 			})
 	});
@@ -458,7 +545,9 @@ module.exports.controllerFunction = function(app){
 
 		//Async function 
 		var getProduct = function(callback){
-			eProduct.findOne({'_id':req.params.id},function(err,result){
+			eProduct.findOne({'_id':req.params.id})
+			.populate({path:'owner',select:'emailId'})
+			.exec(function(err,result){
 				if(err){
 					var myResponse = responseGenerator.generate(true,err,500,null);
 					callback(myResponse);
@@ -481,24 +570,27 @@ module.exports.controllerFunction = function(app){
 		}
 
 		var deletingProduct = function(arg,arg1,callback){
-			eProduct.remove({"_id":req.params.id},function(err,pro){
-				if(err){
-					var myResponse = responseGenerator.generate(true,err,500,null);
-					callback(myResponse);
-				}else{
-					// console.log("deleteProduct : "+pro);
-					var myResponse = responseGenerator.generate(false,"Product Deleted Successfully",200,pro);
-					callback(null,arg,arg1,pro);
-				}
-			});
+			if(arg.owner.emailId == arg1.emailId){
+				// console.log("came here "+arg.owner.firstName+' '+arg1.firstName);
+				eProduct.remove({"_id":req.params.id},function(err,pro){
+					if(err){
+						var myResponse = responseGenerator.generate(true,err,403,null);
+						callback(myResponse);
+					}else{
+						// console.log("deleteProduct : "+pro);
+						var myResponse = responseGenerator.generate(false,"Product Removed Successfully",200,pro);
+						callback(null,arg,arg1,pro);
+					}
+				});
+			}
 		}
 
-		var deleteCart = function(arg,arg1,user,callback){
+		var deleteCart = function(arg,arg1,arg2,callback){
 			eCart.findOneAndUpdate({"_id":req.session.user._id},{$pull:{"cart":arg}},function(err,deleteCart){
 				if(err){
 					var myResponse = responseGenerator.generate(true,err,500,null);
 				}else{
-					var myResponse = responseGenerator.generate(false,"Product Deleted from cart",200,deleteCart);
+					var myResponse = responseGenerator.generate(false,"Product Removed Successfully",200,deleteCart);
 					callback(null,myResponse);
 				}
 			});
@@ -511,10 +603,16 @@ module.exports.controllerFunction = function(app){
 			deleteCart
 			],function(err,result){
 				if(err){
-					res.render("error",{title : "Something Went Wrong"});
+					req.flash('error','Something Went Wrong');
+					res.render('product',{user : req.session.user});
 				}else{
-					// console.log("Parameter : "+result);
-					res.render("error",{title : "Product Removed Successfully"});
+					if( result.message == 'You are not authorized user' || err){
+						req.flash('error','You are not authorized user');
+						res.render('product',{user:req.session.user});
+					}else{
+						req.flash('success','Product Removed Successfully');
+						res.render('product',{user:req.session.user});
+					}
 				}
 			});
 	});
@@ -522,16 +620,10 @@ module.exports.controllerFunction = function(app){
 
 
 	////////////// LogOut function ///////////
-	appRouter.get('/logout',auth.isLoggedIn,function(req,res){
-
-		req.session.destroy(function(err){
-			if(err){
-				console.log(err);
-			}else{
-				console.log("came here   qw");
-				res.redirect('/users/index');
-			}
-		});
+	appRouter.get('/logout',function(req,res){
+		req.session.user = null;
+		res.end();
+		res.redirect('/users/index');
 	});
 
 

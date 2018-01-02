@@ -8,11 +8,12 @@ var eProduct = new Schema({
 
 	// product info
 	proName			: 	{type:String, required:true},
-	price			: 	{type:Number, required:true},
+	price			: 	{type:Number,default:0,required:true},
 	seller			: 	{type:String, default:''},
 	model 			: 	{type:String},
-	comment			: 	{type:String},
-	category		: 	{type:String}
+	descrip			: 	{type:String,required:true},
+	category		: 	{type:String},
+	owner			: 	{type:mongoose.Schema.Types.ObjectId,ref:"User"}
 }
 );
 

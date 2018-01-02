@@ -1,0 +1,33 @@
+extends base
+
+block content
+	.row(style="text-transform: capitalize;")
+		.col-12.text-center
+			.card
+				h2.card-header #{product.proName}
+				.card-block
+					.row
+						.col-lg-6.col-md-6.col-sm-12
+							h4 Model : &nbsp;&nbsp;#{product.model}
+						.col-lg-6.col-md-6.col-sm-12
+							h4 Seller : &nbsp;&nbsp;#{product.seller}
+						br
+						br
+						.col-lg-6.col-md-6.col-sm-12
+							h4 Category : &nbsp;&nbsp;#{product.category}
+						.col-lg-6.col-md-6.col-sm-12
+							h4 Price    : &nbsp;&nbsp;#{product.price}/-
+						br
+						br
+						.col-12.text-center
+							h4 Product Description : &nbsp;&nbsp;#{product.descrip}
+				.card-footer.text-muted
+					.row
+						.col-lg-4.col-md-4.col-sm-12
+							form(method="post",action="http://localhost:3000/users/addCart/#{product._id}")
+								button.btn.btn-primary.btn-lg Add To Cart
+						.col-lg-4.col-md-4.col-sm-12
+							a.btn.btn-primary.btn-lg(href="/users/edit/#{product._id}") Edit Info
+						.col-lg-4.col-md-4.col-sm-12
+							form(method="post",action="http://localhost:3000/users/deletePro/#{product._id}")
+								button.btn.btn-primary.btn-lg Delete Product

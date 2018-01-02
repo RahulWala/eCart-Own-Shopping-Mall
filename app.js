@@ -22,7 +22,6 @@ app.use(session({
 	name	: 	'myFirstCookie',
 	secret	: 	'R@W@1209348756',
 	resave	: 	 true,
-	
 	httpOnly: 	 true,
 	saveUninitialized : true,
 	cookie 	: 	{ secure : false}
@@ -41,7 +40,6 @@ app.set("view engine",'jade');
 
 //set the view folder
 app.set('views',path.join(__dirname+'/app/views'));
-
 
 
 //it will log or keep track of all the request that are made to the app

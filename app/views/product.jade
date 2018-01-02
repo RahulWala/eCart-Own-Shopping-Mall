@@ -1,22 +1,19 @@
 extends base
 
 block content
-	br
-	.row
-		.col-lg-11.col-md-11.col-sm-11
-			h3.text-center Hello ! #{user.userName}
-		.col-lg-1.col-md-1.col-sm-1
-			button.btn.btn-primary.btn-block
-				a(href='/users/logout') Logout
-	br
 	.container-fluid
 		.row
 			.col-lg-4.col-md-4.col-sm-4.text-center.btn
-				.btn.btn-lg.btn-primary.btn-block
-					a(style="color:black;text-decoration:none;")(href='/users/proInfo') Add Product
+				button.btn.btn-lg.btn-primary.btn-block(style="background-color:#F16C20;border-color:black;")
+					a(style="color:white;text-decoration:none;")(href='/users/proInfo') Add Product
 			.col-lg-4.col-md-4.col-sm-4.text-center.btn
-					form(method='post',action='http://localhost:3000/users/viewPro')
-						button.btn.btn-block.btn-lg.btn-primary(style="color:black;")(type='submit') View Product
+				button.btn.btn-block.btn-lg.btn-primary(style="background-color:#009966;border-color:black;")
+					a(href="/users/viewPro")(style="color:black;text-decoration:none;") View Product
 			.col-lg-4.col-md-4.col-sm-4.text-center.btn
-				button.btn.btn-lg.btn-primary.btn-block
-					a(href="/users/viewCart/#{user._id}") View Cart
+				button.btn.btn-lg.btn-primary.btn-block(style="background-color:#1395BA;border-color:black;")
+					a(href="/users/viewCart/#{user._id}")(style="color:black;text-decoration:none;") View Cart
+block page
+	p(style="color:white;margin-top:6px;margin-right:8px;") Hi, 
+		span(style="font-weight:bold;color:#61f9e8;margin-top:6px;text-transform:capitalize;") #{user.firstName}
+block logout
+	a.text-center(style="text-decoration:none;color:grey;font-weight:500;color:#e2a15a;")(href="/users/logout") Logout
