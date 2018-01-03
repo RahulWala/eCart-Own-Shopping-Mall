@@ -13,6 +13,8 @@ var eProduct  	= mongoose.model('Product');
 
 var responseGenerator	= require('./../../libs/responseGenerator');
 var auth 				= require('./../../middlewares/auth');
+var crypto 				= require('./../../libs/crypto');
+var key = 'Crypto-Key'
 
 module.exports.controllerFunction = function(app){
 
@@ -90,6 +92,7 @@ module.exports.controllerFunction = function(app){
 	appRouter.post('/reset/:token', function(req, res) {
 	  async.waterfall([
 	    function(done) {
+
 	      eCart.findOne({ resetPasswordToken : req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
 	        if (!user) {
 	        	// console.log(err);
@@ -97,7 +100,9 @@ module.exports.controllerFunction = function(app){
 	        	return res.redirect('/users/index');
 	        }
 
-	        user.password = req.body.password;
+	        // user.password = req.body.password;
+	        user.password = crypto.encrypt(key,req.body.password);
+	        // console.log(user.password);
 	        user.resetPasswordToken = undefined;
 	        user.resetPasswordExpires = undefined;
 
@@ -108,7 +113,7 @@ module.exports.controllerFunction = function(app){
 	    },
 	    function(user, done) {
 	      var smtpTransport = nodemailer.createTransport({
-	        service: 'Gamil',
+	        service: 'Gmail',
 	        auth: {
 	          user: 'rahulwala72@gmail.com',
 	          pass: '01475963'

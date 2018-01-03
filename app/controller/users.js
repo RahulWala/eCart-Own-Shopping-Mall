@@ -13,7 +13,8 @@ var eProduct  	= mongoose.model('Product');
 
 var responseGenerator	= require('./../../libs/responseGenerator');
 var auth 				= require('./../../middlewares/auth');
-
+var crypto 				= require('./../../libs/crypto');
+var key = 'Crypto-Key'
 
 module.exports.controllerFunction = function(app){
 
@@ -66,6 +67,8 @@ module.exports.controllerFunction = function(app){
 						password		: 	req.body.password
 					});
 					// console.log("data added");
+					newUser.password = crypto.encrypt(key,req.body.password);
+
 					newUser.save(function(error,result){
 						if(error){
 							// console.log("error is here");
@@ -83,8 +86,9 @@ module.exports.controllerFunction = function(app){
 							// console.log("error in else");
 							// var myResponse = responseGenerator.generate(false,"Successfully generated",200,newUser);
 							// console.log(myResponse);
-							// res.send(myResponse);					req.session.user = newUser;
-							// delete req.session.user.password;
+							// res.send(myResponse);
+							req.session.user = newUser;
+							delete req.session.user.password;
 							req.flash('success',"Successfully Signed Up");
 							res.render('index');
 						}
@@ -105,8 +109,10 @@ module.exports.controllerFunction = function(app){
 	/*			LogIn Function 		  		*/
 	/***************************************/
 	appRouter.post('/login',auth.loggedInUser,function(req,res){
-		// console.log("Came here");
-		eCart.findOne({$and:[{'emailId':req.body.emailId},{'password':req.body.password}]}).exec(function(err,foundUser){
+
+		var pass = crypto.encrypt(key,req.body.password);
+		console.log(pass);
+		eCart.findOne({$and:[{'emailId':req.body.emailId},{'password':pass}]}).exec(function(err,foundUser){
 			// console.log(foundUser+"came in login function");
 			if(err){
 				// console.log("error in starting");

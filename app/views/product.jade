@@ -3,17 +3,21 @@ extends base
 block content
 	.container-fluid
 		.row
-			.col-lg-4.col-md-4.col-sm-4.text-center.btn
-				button.btn.btn-lg.btn-primary.btn-block(style="background-color:#F16C20;border-color:black;")
-					a(style="color:white;text-decoration:none;")(href='/users/proInfo') Add Product
-			.col-lg-4.col-md-4.col-sm-4.text-center.btn
-				button.btn.btn-block.btn-lg.btn-primary(style="background-color:#009966;border-color:black;")
-					a(href="/users/viewPro")(style="color:black;text-decoration:none;") View Product
-			.col-lg-4.col-md-4.col-sm-4.text-center.btn
-				button.btn.btn-lg.btn-primary.btn-block(style="background-color:#1395BA;border-color:black;")
-					a(href="/users/viewCart/#{user._id}")(style="color:black;text-decoration:none;") View Cart
+			.col-lg-4.col-md-4.col-sm-4.text-center
+				a.btn.btn-primary.btn-block.btn-lg(style="background-color:#F16C20;border-color:black;")(href='/users/proInfo') Add Product
+			.col-lg-4.col-md-4.col-sm-4.text-center
+				a.btn.btn-primary.btn-block.btn-lg(style="background-color:#009966;border-color:black;")(href="/users/viewPro") View Product
+			.col-lg-4.col-md-4.col-sm-4.text-center
+				a.btn.btn-primary.btn-block.btn-lg(style="background-color:#1395BA;border-color:black;")(href="/users/viewCart/#{user._id}") View Cart
 block page
 	p(style="color:white;margin-top:6px;margin-right:8px;") Hi, 
 		span(style="font-weight:bold;color:#61f9e8;margin-top:6px;text-transform:capitalize;") #{user.firstName}
 block logout
 	a.text-center(style="text-decoration:none;color:grey;font-weight:500;color:#e2a15a;")(href="/users/logout") Logout
+
+
+	
+
+	
+
+	
