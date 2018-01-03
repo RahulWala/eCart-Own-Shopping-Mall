@@ -6,7 +6,7 @@ var Schema = mongoose.Schema;
 
 var cartContent = new Schema({
 
-	_id			: 	{type:mongoose.Schema.Types.ObjectId},
+	_id			: 	{type:mongoose.Schema.Types.ObjectId,required:true,index:true},
 	proName		: 	{type:String,default:'',required:true},
 	category	: 	{type:String},
 	price		: 	{type:Number,default:0,required:true}

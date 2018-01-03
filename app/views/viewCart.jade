@@ -1,17 +1,34 @@
 extends base
 
 block content
-	table.table
-		thead
-			tr
-				th Products
-				th Price
-				th Delete
-		tbody
-			for item in items
-				tr
-					td #{item.proName}
-					td #{item.price}
-					td
-						form(method="post", action="http://localhost:3000/users/delete/#{item._id}")
-							button(type='submit') Delete
+	- var total = 0
+	- var msg = {description : 'Add Something To Cart'}
+	.row
+		.col-lg-10.col-md-10.col-sm-12
+			table.table.borderless
+				thead
+					tr
+						th Products
+						th Price
+						th Delete
+				tbody
+					for item in items
+						if item.proName
+							tr
+								td #{item.proName}
+								td #{item.price}
+								td 
+									form(method="post", action="http://localhost:3000/users/delete/#{item._id}")
+										button.btn.btn-primary(type='submit') Delete
+							- total += item.price
+						else
+							tr 
+								h1.decscription= item.description
+		.col-lg-2.col-md-2.col-sm-12
+			.card
+				.card-header Price Detail 
+				.card-block
+					h5.card-text.text-center Total Payment
+				.card-footer
+					h6 Rs -
+						h3.text-center=total
