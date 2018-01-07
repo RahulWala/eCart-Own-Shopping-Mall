@@ -3,7 +3,7 @@ var express 	= require('express');
 var async 		= require("async");
 var nodemailer	= require('nodemailer');
 var crypto		= require('crypto');
-var passport	= require('passport');
+
 
 //express router used to define route
 var appRouter 	= express.Router();
